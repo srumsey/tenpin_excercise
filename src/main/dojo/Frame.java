@@ -13,7 +13,6 @@ public class Frame {
     private Boolean openFrame = true;
     private Boolean finalFrame = false;
 
-
     public void roll(Integer pins) {
         rolls.add(pins);
         setOpenFrame();

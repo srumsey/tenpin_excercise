@@ -63,17 +63,15 @@ public class Game {
             bonusBalls = EXTRA_BALLS_FOR_SPARE;
         }
 
-        if (bonusBalls > 0) {
-            Optional<Frame> bonusFrame = nextFrame(frame);
-            if (bonusFrame.isPresent()) {
-                bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
-                bonusBalls -= bonusFrame.get().bonusBallsUsed();
+        Optional<Frame> bonusFrame = nextFrame(frame);
+        if (bonusFrame.isPresent()) {
+            bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
+            bonusBalls -= bonusFrame.get().bonusBallsUsed();
 
-                if (bonusBalls > 0) {
-                    bonusFrame = nextFrame(bonusFrame.get());
-                    if (bonusFrame.isPresent()) {
-                        bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
-                    }
+            if (bonusBalls > 0) {
+                bonusFrame = nextFrame(bonusFrame.get());
+                if (bonusFrame.isPresent()) {
+                    bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
                 }
             }
         }
