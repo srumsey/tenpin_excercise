@@ -71,7 +71,7 @@ public class Game {
 
                 if (bonusBalls > 0) {
                     bonusFrame = nextFrame(bonusFrame.get());
-                    if (bonusBalls > 0 && bonusFrame.isPresent()) {
+                    if (bonusFrame.isPresent()) {
                         bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
                     }
                 }
