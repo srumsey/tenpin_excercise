@@ -1,6 +1,7 @@
 package dojo;
 
 import com.google.common.base.Optional;
+import dojo.exception.GameAlreadyCompleteException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,9 @@ public class Game {
     }
 
     public void roll(int pins) {
+        if (gameComplete()) {
+            throw new GameAlreadyCompleteException("Game Completed");
+        }
         if (!presentFrame().isOpenFrame()) {
             newFrame();
         }
@@ -34,6 +38,14 @@ public class Game {
             }
         }
         return score;
+    }
+
+    private Boolean gameComplete() {
+        if (frames.size() == FRAMES_IN_GAME && presentFrame().isOpenFrame() == false) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private Frame presentFrame() {
