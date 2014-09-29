@@ -5,74 +5,61 @@ import java.util.List;
 
 public class Game {
 
-    private int totalScore;
-    private int bonusRollsRemaining = 0;
-    private static final int PINS_IN_STRIKE = 10;
-    private int previousPins = 0;
-    private int rollInFrame = 1;
-    private List<Frame> frames;
-    private Frame currentFrame;
+    private static final int FRAMES_IN_GAME = 10;
+    private static final int EXTRA_BALLS_FOR_STRIKE = 2;
+    private static final int EXTRA_BALLS_FOR_SPARE = 1;
+
+    private List<Frame> frames = new ArrayList<Frame>();
 
     public Game() {
-        frames = new ArrayList<Frame>();
-        currentFrame = new Frame();
-        frames.add(currentFrame);
+        frames.add(new Frame());
     }
 
     public void roll(int pins) {
-
-        currentFrame.addRoll(pins);
-        if(currentFrame.shouldClose()){
-            currentFrame = new Frame();
+        if (!currentFrame().isOpenFrame()) {
+            newFrame();
         }
+        currentFrame().roll(pins);
+    }
 
-        updateTotalScore(pins);
+    public Integer score() {
+        Integer score = 0;
 
-        setBonusRollsRemaining(pins);
-        setRollsInFrame(pins);
+        for (Integer i = 0; i < frames.size(); i++) {
+            Frame frame = frames.get(i);
+            score += frame.totalScore();
 
-        if (isStrike(previousPins) && isStrike(pins)) {
-            totalScore+=5;
+            Integer bonusBalls = 0;
+            if (frame.isStrike()) {
+                bonusBalls = EXTRA_BALLS_FOR_STRIKE;
+            } else if (frame.isSpare()) {
+                bonusBalls = EXTRA_BALLS_FOR_SPARE;
+            }
+
+            Integer bonusFrame = i + 1;
+
+            if (bonusBalls > 0 && bonusFrame < frames.size()) {
+                score += frames.get(bonusFrame).bonusBallsScore(bonusBalls);
+                bonusBalls -= frames.get(bonusFrame).bonusBallsUsed();
+                bonusFrame++;
+            }
+
+
+            if (bonusBalls > 0 && bonusFrame < frames.size()) {
+                score += frames.get(bonusFrame).bonusBallsScore(bonusBalls);
+            }
         }
-        previousPins = pins;
+        return score;
     }
 
-    private void setRollsInFrame(int pins) {
-        if (isStrike(pins)) {
-            rollInFrame = 1;
-        } else if (isSpare(pins)) {
-            rollInFrame = 1;
-        } else {
-            rollInFrame = 2;
+    private Frame currentFrame() {
+        return frames.get(frames.size()-1);
+    }
+
+    private void newFrame() {
+        frames.add(new Frame());
+        if (frames.size() == FRAMES_IN_GAME) {
+            currentFrame().setFinalFrame(true);
         }
-    }
-
-    private void setBonusRollsRemaining(int pins) {
-        if (isStrike(pins)) {
-            bonusRollsRemaining = 2;
-        } else if (isSpare(pins)) {
-            bonusRollsRemaining = 1;
-        }
-    }
-
-    private void updateTotalScore(int pins) {
-        if (bonusRollsRemaining > 0) {
-            --bonusRollsRemaining;
-            totalScore += pins;
-        }
-
-        totalScore += pins;
-    }
-
-    private boolean isStrike(int pins) {
-        return rollInFrame == 1 && pins == PINS_IN_STRIKE;
-    }
-
-    private boolean isSpare(int pins) {
-        return (rollInFrame == 2) && (pins + previousPins == PINS_IN_STRIKE);
-    }
-
-    public int score() {
-        return totalScore;
     }
 }

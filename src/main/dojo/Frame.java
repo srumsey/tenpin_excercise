@@ -1,45 +1,85 @@
 package dojo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Frame {
-    public static final int TOTAL_PINS = 10;
-    private Integer rollOne = null;
-    private Integer rollTwo = null;
+    private static final int FIRST_BALL = 0;
+    private static final int SECOND_BALL = 1;
+    private static final int BALLS_IN_STANDARD_FRAME = 2;
+    private static final int MAX_BALLS_IN_FINAL_FRAME = 3;
+    private static final int TOTAL_PINS = 10;
+    private final List<Integer> rolls = new ArrayList<Integer>();
+    private Boolean openFrame = true;
+    private Boolean finalFrame = false;
 
-    public int getRollOne() {
-        return rollOne;
+
+    public void roll(Integer pins) {
+        rolls.add(pins);
+        setOpenFrame();
     }
 
-    public void setRollOne(int rollOne) {
-        this.rollOne = rollOne;
+    public boolean isStrike() {
+        return !rolls.isEmpty() && rolls.get(FIRST_BALL) == TOTAL_PINS;
     }
 
-    public int getRollTwo() {
-        return rollTwo;
+    public boolean isSpare() {
+        return !isStrike() && (rolls.size() >= BALLS_IN_STANDARD_FRAME && (rolls.get(FIRST_BALL) + rolls.get(SECOND_BALL)) == TOTAL_PINS);
     }
 
-    public void setRollTwo(int rollTwo) {
-        this.rollTwo = rollTwo;
+    public boolean isOpenFrame() {
+        return openFrame;
     }
 
-    public void addRoll(int pins) {
-        if( rollOne == null) {
-            rollOne = pins;
+    public Integer totalScore() {
+        return sumRolls(rolls);
+    }
+
+    private Integer sumRolls (List<Integer> rollsToSum) {
+        Integer sum = 0;
+        for (Integer roll : rollsToSum) {
+            sum += roll;
+        }
+        return sum;
+    }
+
+    public Integer bonusBallsScore(Integer bonusBalls) {
+        if (bonusBalls < rolls.size()) {
+            return sumRolls(rolls.subList(0, bonusBalls));
         } else {
-            rollTwo = pins;
+            return totalScore();
         }
     }
 
-    public boolean shouldClose() {
-        if(isStrike()){
-            return true;
-        } else if(rollOne == null || rollTwo == null){
-            return false;
-        }
-
-        return true;
+    public Integer bonusBallsUsed() {
+        return rolls.size();
     }
 
-    private boolean isStrike() {
-        return rollOne == TOTAL_PINS;
+    public Integer firstRollScore() {
+        return rolls.get(FIRST_BALL);
+    }
+
+    public Integer totalRolls() {
+        return rolls.size();
+    }
+
+    private void setOpenFrame() {
+        if (finalFrame == true) {
+            if (((isStrike() || isSpare()) && rolls.size() == MAX_BALLS_IN_FINAL_FRAME) || ((!isStrike() && !isSpare()) && rolls.size() == BALLS_IN_STANDARD_FRAME)) {
+                openFrame = false;
+            }
+        } else {
+            if (isStrike() || (rolls.size() == BALLS_IN_STANDARD_FRAME)) {
+                openFrame = false;
+            }
+        }
+    }
+
+    public void setFinalFrame(Boolean finalFrame) {
+        this.finalFrame = finalFrame;
+    }
+
+    public Boolean getFinalFrame() {
+        return this.finalFrame;
     }
 }
