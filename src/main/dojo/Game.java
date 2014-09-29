@@ -1,5 +1,7 @@
 package dojo;
 
+import com.google.common.base.Optional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,50 +18,66 @@ public class Game {
     }
 
     public void roll(int pins) {
-        if (!currentFrame().isOpenFrame()) {
+        if (!presentFrame().isOpenFrame()) {
             newFrame();
         }
-        currentFrame().roll(pins);
+        presentFrame().roll(pins);
     }
 
     public Integer score() {
         Integer score = 0;
 
-        for (Integer i = 0; i < frames.size(); i++) {
-            Frame frame = frames.get(i);
+        for (Frame frame : frames) {
             score += frame.totalScore();
-
-            Integer bonusBalls = 0;
-            if (frame.isStrike()) {
-                bonusBalls = EXTRA_BALLS_FOR_STRIKE;
-            } else if (frame.isSpare()) {
-                bonusBalls = EXTRA_BALLS_FOR_SPARE;
-            }
-
-            Integer bonusFrame = i + 1;
-
-            if (bonusBalls > 0 && bonusFrame < frames.size()) {
-                score += frames.get(bonusFrame).bonusBallsScore(bonusBalls);
-                bonusBalls -= frames.get(bonusFrame).bonusBallsUsed();
-                bonusFrame++;
-            }
-
-
-            if (bonusBalls > 0 && bonusFrame < frames.size()) {
-                score += frames.get(bonusFrame).bonusBallsScore(bonusBalls);
+            if (frame.isStrike() || frame.isSpare()) {
+                score += bonusScoreForFrame(frame);
             }
         }
         return score;
     }
 
-    private Frame currentFrame() {
+    private Frame presentFrame() {
         return frames.get(frames.size()-1);
     }
 
     private void newFrame() {
         frames.add(new Frame());
         if (frames.size() == FRAMES_IN_GAME) {
-            currentFrame().setFinalFrame(true);
+            presentFrame().setFinalFrame(true);
         }
+    }
+
+    private Optional<Frame> nextFrame(Frame frame) {
+        Integer nextFrameIndex = frames.indexOf(frame) + 1;
+        return nextFrameIndex >= frames.size() ? Optional.fromNullable((Frame) null) : Optional.of(frames.get(nextFrameIndex));
+    }
+
+    private Integer bonusScoreForFrame(Frame frame) {
+
+        Integer bonusScore = 0;
+        Integer bonusBalls = 0;
+
+        if (frame.isStrike()) {
+            bonusBalls = EXTRA_BALLS_FOR_STRIKE;
+        } else if (frame.isSpare()) {
+            bonusBalls = EXTRA_BALLS_FOR_SPARE;
+        }
+
+        if (bonusBalls > 0) {
+            Optional<Frame> bonusFrame = nextFrame(frame);
+            if (bonusFrame.isPresent()) {
+                bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
+                bonusBalls -= bonusFrame.get().bonusBallsUsed();
+
+                if (bonusBalls > 0) {
+                    bonusFrame = nextFrame(bonusFrame.get());
+                    if (bonusBalls > 0 && bonusFrame.isPresent()) {
+                        bonusScore += bonusFrame.get().bonusBallsScore(bonusBalls);
+                    }
+                }
+            }
+        }
+
+        return bonusScore;
     }
 }

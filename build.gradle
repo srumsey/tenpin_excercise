@@ -10,5 +10,7 @@ repositories {
 }
 
 dependencies {
+    compile('com.google.guava:guava:16.0.1')
+
     testCompile group: 'org.spockframework', name: 'spock-core', version: '0.7-groovy-2.0'
 }
