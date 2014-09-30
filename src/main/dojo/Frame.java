@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Frame {
-    private static final int FIRST_BALL = 0;
-    private static final int SECOND_BALL = 1;
+    private static final int FIRST_BALL = 1;
     private static final int BALLS_IN_STANDARD_FRAME = 2;
     private static final int MAX_BALLS_IN_FINAL_FRAME = 3;
     private static final int TOTAL_PINS = 10;
@@ -19,11 +18,11 @@ public class Frame {
     }
 
     public boolean isStrike() {
-        return !rolls.isEmpty() && rolls.get(FIRST_BALL) == TOTAL_PINS;
+        return sumRolls(firstRolls(FIRST_BALL)) == TOTAL_PINS;
     }
 
     public boolean isSpare() {
-        return !isStrike() && (rolls.size() >= BALLS_IN_STANDARD_FRAME && (rolls.get(FIRST_BALL) + rolls.get(SECOND_BALL)) == TOTAL_PINS);
+        return !isStrike() && sumRolls(firstRolls(BALLS_IN_STANDARD_FRAME)) == TOTAL_PINS;
     }
 
     public boolean isOpenFrame() {
@@ -36,26 +35,25 @@ public class Frame {
 
     private Integer sumRolls (List<Integer> rollsToSum) {
         Integer sum = 0;
-        for (Integer roll : rollsToSum) {
-            sum += roll;
-        }
+        for (Integer roll : rollsToSum) sum += roll;
         return sum;
+
+    }
+
+    private List<Integer> firstRolls (Integer numberOfRolls) {
+        return rolls.size() >= numberOfRolls ? rolls.subList(0, numberOfRolls) : rolls;
     }
 
     public Integer bonusBallsScore(Integer bonusBalls) {
-        if (bonusBalls < rolls.size()) {
-            return sumRolls(rolls.subList(0, bonusBalls));
-        } else {
-            return totalScore();
-        }
+        return sumRolls(firstRolls(bonusBalls));
     }
 
     public Integer bonusBallsUsed() {
-        return rolls.size();
+        return rolls.size() <= BALLS_IN_STANDARD_FRAME ? rolls.size() : BALLS_IN_STANDARD_FRAME;
     }
 
     public Integer firstRollScore() {
-        return rolls.get(FIRST_BALL);
+        return sumRolls(firstRolls(FIRST_BALL));
     }
 
     public Integer totalRolls() {
