@@ -37,7 +37,6 @@ public class Frame {
         Integer sum = 0;
         for (Integer roll : rollsToSum) sum += roll;
         return sum;
-
     }
 
     private List<Integer> firstRolls (Integer numberOfRolls) {
@@ -61,7 +60,7 @@ public class Frame {
     }
 
     private void setOpenFrame() {
-        if (finalFrame == true) {
+        if (finalFrame) {
             if (((isStrike() || isSpare()) && rolls.size() == MAX_BALLS_IN_FINAL_FRAME) || ((!isStrike() && !isSpare()) && rolls.size() == BALLS_IN_STANDARD_FRAME)) {
                 openFrame = false;
             }

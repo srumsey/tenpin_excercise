@@ -30,7 +30,6 @@ public class Game {
 
     public Integer score() {
         Integer score = 0;
-
         for (Frame frame : frames) {
             score += frame.totalScore();
             if (frame.isStrike() || frame.isSpare()) {
@@ -41,7 +40,7 @@ public class Game {
     }
 
     private Boolean gameComplete() {
-        if (frames.size() == FRAMES_IN_GAME && presentFrame().isOpenFrame() == false) {
+        if (frames.size() == FRAMES_IN_GAME && !presentFrame().isOpenFrame()) {
             return true;
         } else {
             return false;
@@ -61,7 +60,7 @@ public class Game {
 
     private Optional<Frame> nextFrame(Frame frame) {
         Integer nextFrameIndex = frames.indexOf(frame) + 1;
-        return nextFrameIndex >= frames.size() ? Optional.fromNullable((Frame) null) : Optional.of(frames.get(nextFrameIndex));
+        return nextFrameIndex >= frames.size() ? Optional.<Frame>absent() : Optional.of(frames.get(nextFrameIndex));
     }
 
     private Integer bonusScoreForFrame(Frame frame) {
