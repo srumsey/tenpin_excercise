@@ -1,7 +1,9 @@
 package dojo
 
+import dojo.exception.GameAlreadyCompleteException
 import spock.lang.Specification
 import spock.lang.Unroll
+import sun.plugin.dom.exception.InvalidStateException
 
 
 class FrameSpec extends Specification {
@@ -34,6 +36,35 @@ class FrameSpec extends Specification {
         "strike"                           | 10            | true           | false         | 1             | false             | 10                     | [10]
         "spare"                            | 10            | false          | true          | 2             | false             | 5                      | [5,5]
         "spare 10 seconds ball"            | 10            | false          | true          | 2             | false             | 0                      | [0,10]
+    }
+
+    @Unroll
+    void "Expect exception because #title"() {
+        given:
+        Frame frame = new Frame();
+        frame.setFinalFrame(finalFrame)
+
+        when:
+        for (int roll : rolls) {
+            frame.roll(roll)
+        }
+
+        then:
+        thrown(InvalidStateException)
+
+        where:
+        title                              | finalFrame | rolls
+        "score ball 1 less than 0"         | false      | [-1, 0]
+        "score ball 2 less than 0"         | false      | [0, -1]
+        "score ball 1 greater than 10"     | false      | [11, 0]
+        "score ball 2 greater than 10"     | false      | [0, 11]
+        "score grater than 10"             | false      | [5, 6]
+        "score grater than 10 again"       | false      | [6, 5]
+        "3rd roll normal frame"            | false      | [0, 0, 0]
+
+        "final frame not strike or spare"  | true       | [0, 0, 0]
+        "final strike 4 balls rolled"      | true       | [10, 10, 10, 10]
+        "final spare 4 balls rolled"       | true       | [5, 5, 10, 10]
     }
 
     @Unroll

@@ -3,6 +3,7 @@ package dojo
 import dojo.exception.GameAlreadyCompleteException
 import spock.lang.Specification
 import spock.lang.Unroll
+import sun.plugin.dom.exception.InvalidStateException
 
 
 class GameSpec extends Specification {
@@ -59,5 +60,23 @@ class GameSpec extends Specification {
         "spare in last frame"              | [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0]
         "strike in last frame"             | [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0]
         "Perfect Game"                     | [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+    }
+
+    @Unroll
+    void "Expect frame to raise exception because #title"() {
+        when:
+        Game g = new Game();
+        for (int roll : rolls) {
+            g.roll(roll)
+        }
+
+        then:
+        thrown(InvalidStateException)
+
+        where:
+        title                              | rolls
+        "pins less than zero"              | [0, -1]
+        "pins grater than 1"               | [0, 11]
+        "total is frame greater than 10"   | [5, 6]
     }
 }

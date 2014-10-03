@@ -1,5 +1,7 @@
 package dojo;
 
+import sun.plugin.dom.exception.InvalidStateException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,22 +9,33 @@ public class Frame {
     private static final int FIRST_BALL = 1;
     private static final int BALLS_IN_STANDARD_FRAME = 2;
     private static final int MAX_BALLS_IN_FINAL_FRAME = 3;
-    private static final int TOTAL_PINS = 10;
+    private static final int TOTAL_PINS_IN_FRAME = 10;
+    private static final int MIN_ALLOWED_PINS_PER_ROLL = 0;
+    private static final int MAX_ALLOWED_PINS_PER_ROLL = 10;
     private final List<Integer> rolls = new ArrayList<Integer>();
     private Boolean openFrame = true;
     private Boolean finalFrame = false;
 
     public void roll(Integer pins) {
+        if (!isOpenFrame()) {
+            throw new InvalidStateException("Cannot add pins to an frame which is not open");
+        } else if (pins < MIN_ALLOWED_PINS_PER_ROLL) {
+            throw new InvalidStateException("Pins is less than minimun allowed [" + MIN_ALLOWED_PINS_PER_ROLL + "]");
+        } else if (pins > MAX_ALLOWED_PINS_PER_ROLL) {
+            throw new InvalidStateException("Pins is greater than maximum allowed [" + MAX_ALLOWED_PINS_PER_ROLL + "]");
+        } else if (!finalFrame && pins + totalScore() > TOTAL_PINS_IN_FRAME) {
+            throw new InvalidStateException("Total pins in frame cannot exceed [" + TOTAL_PINS_IN_FRAME + "]");
+        }
         rolls.add(pins);
         setOpenFrame();
     }
 
     public boolean isStrike() {
-        return sumRolls(firstRolls(FIRST_BALL)) == TOTAL_PINS;
+        return sumRolls(firstRolls(FIRST_BALL)) == TOTAL_PINS_IN_FRAME;
     }
 
     public boolean isSpare() {
-        return !isStrike() && sumRolls(firstRolls(BALLS_IN_STANDARD_FRAME)) == TOTAL_PINS;
+        return !isStrike() && sumRolls(firstRolls(BALLS_IN_STANDARD_FRAME)) == TOTAL_PINS_IN_FRAME;
     }
 
     public boolean isOpenFrame() {
